@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Reset */
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f0f0;
+    }
+
+    /* Ad Container */
+    .ad {
+      width: 100%;
+      max-width: 728px;
+      height: 250px;
+      background: linear-gradient(135deg, #007bff, #00c6ff);
+      color: #fff;
+      font-family: "Arial", sans-serif;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      overflow: hidden;
+      position: relative;
+      animation: fadeIn 1s ease-out;
+    }
+
+    /* Content */
+    .content {
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: slideUp 1.5s ease-out 0.5s forwards;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 2em;
+      animation: pulse 2s infinite;
+    }
+
+    p {
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+
+    .btn {
+      background: #fff;
+      color: #007bff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: #007bff;
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 20%); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Responsive Sizes */
+    @media (max-width: 600px) {
+      .ad {
+        height: 200px;
+        max-width: 300px;
+      }
+      h2 { font-size: 1.5em; }
+      p { font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ad">
+    <div class="content">
+      <h2>Download CoolCast AI App!</h2>
+      <p>Fast • Secure • Free</p>
+      <a class="btn" href="https://play.google.com/store/apps/details?id=com.reach_tech.Cool&hl=en">Get It Now</a>
+    </div>
+  </div>
+</body>
+</html>
