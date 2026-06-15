@@ -315,7 +315,7 @@ function buildSlide(item, index) {
   if (item.type === 'embed') {
     const iframe = document.createElement('iframe');
     iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#000';
-    iframe.dataset.src = item.src;
+    iframe.src = item.src;
     iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
     //iframe.allowFullscreen = true;
     iframe.scrolling = 'no';
