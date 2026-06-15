@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Fone</title>
+<title>Reels</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -43,6 +43,9 @@
     background: #111;
   }
 
+  .slide.is-embed .slide-overlay,
+  .slide.is-embed .slide-overlay-top { display: none; }
+  .slide.is-embed .slide-info { background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%); }
   .slide-overlay {
     position: absolute;
     bottom: 0;
@@ -154,6 +157,7 @@
     50% { transform: translateY(-6px); }
   }
 
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   @keyframes fadeHint {
     0% { opacity: 0; }
     20% { opacity: 1; }
@@ -198,8 +202,19 @@
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 // Replace items here with your own images/videos and titles.
 // type: "image" or "video"
+// type: "image" | "video" | "embed"
+//
+// Embed URL formats:
+//   YouTube:  https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1
+//   Facebook: https://www.facebook.com/plugins/video.php?href=ENCODED_URL&autoplay=true
+//   Twitch:   https://player.twitch.tv/?channel=NAME&parent=YOUR_DOMAIN
+//   Vimeo:    https://player.vimeo.com/video/VIDEO_ID?autoplay=1
+//
+//   live: true  -> shows red LIVE badge
+//   live: false -> no badge
+
 const items = [
-  {
+	{
     type: "image",
     src: "https://reachtechllc.github.io/images/WhatsApp Image 2026-06-15 at 13.00.21.jpeg",
     tag: "CAC Oke Alaafia",
@@ -208,7 +223,7 @@ const items = [
   },
  {
     type: "image",
-    src: "images/WhatsApp Image 2026-06-15 at 13.00.22 (2).jpeg",
+    src: "https://reachtechllc.github.io/images/WhatsApp Image 2026-06-15 at 13.00.22 (2).jpeg",
     tag: "CAC Oke Alaafia",
     title: "Bible Study",
     subtitle: "We have our Bible Study every 1st Wednesday of the month",
@@ -227,6 +242,57 @@ const items = [
     title: "Evangelism",
     subtitle: "Evangelism",
   },
+  {
+    type: "embed",
+    src: "https://www.youtube.com/embed/k0_hQ95oEnQ?si=s9nyozsyMnzfK3_1",
+    tag: "YouTube",
+    title: "Lofi Hip Hop Radio",
+    subtitle: "Beats to relax and study to — streaming live.",
+    live: true,
+  },
+  /*{
+    type: "image",
+    src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    tag: "Nature",
+    title: "Mountain Serenity",
+    subtitle: "The peaks rise above the clouds in perfect silence.",
+  },
+  {
+    type: "embed",
+    src: "https://www.youtube.com/embed/k0_hQ95oEnQ?si=s9nyozsyMnzfK3_1",
+    tag: "YouTube",
+    title: "Lofi Hip Hop Radio",
+    subtitle: "Beats to relax and study to — streaming live.",
+    live: true,
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&q=80",
+    tag: "Flowers",
+    title: "Wildflower Field",
+    subtitle: "A carpet of colour stretching to the horizon.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&q=80",
+    tag: "Water",
+    title: "Still Lake",
+    subtitle: "Reflections so perfect you can't tell up from down.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=800&q=80",
+    tag: "Night",
+    title: "Starry Sky",
+    subtitle: "Billions of suns, and one quiet observer.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?w=800&q=80",
+    tag: "Coast",
+    title: "Ocean Breeze",
+    subtitle: "Where the land surrenders to the sea.",
+  },*/
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
@@ -235,6 +301,7 @@ let startY = 0;
 let dragging = false;
 let dragDelta = 0;
 let muted = false;
+let interacting = false;
 
 const feed = document.getElementById('feed');
 const dotsEl = document.getElementById('dots');
@@ -242,24 +309,52 @@ const dotsEl = document.getElementById('dots');
 // ─── BUILD SLIDES ─────────────────────────────────────────────────────────────
 function buildSlide(item, index) {
   const slide = document.createElement('div');
-  slide.className = 'slide';
+  slide.className = 'slide' + (item.type === 'embed' ? ' is-embed' : '');
   slide.dataset.index = index;
 
-  let media;
-  if (item.type === 'video') {
-    media = document.createElement('video');
+  if (item.type === 'embed') {
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#000';
+    iframe.dataset.src = item.src;
+    iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
+    //iframe.allowFullscreen = true;
+    iframe.scrolling = 'no';
+    slide.appendChild(iframe);
+    const guard = document.createElement('div');
+    guard.style.cssText = 'position:absolute;inset:0;z-index:10;background:transparent';
+    slide.appendChild(guard);
+    const iBtn = document.createElement('button');
+    iBtn.style.cssText = 'position:absolute;bottom:120px;left:50%;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:13px;font-weight:600;padding:8px 20px;border-radius:24px;cursor:pointer;white-space:nowrap';
+    iBtn.textContent = String.fromCharCode(9654) + ' Tap to interact';
+    iBtn.addEventListener('click', () => {
+      interacting = true;
+      guard.style.display = 'none';
+      iBtn.style.display = 'none';
+      const eBtn = document.createElement('button');
+      eBtn.style.cssText = 'position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:600;padding:6px 16px;border-radius:24px;cursor:pointer';
+      eBtn.textContent = 'Exit interaction';
+      eBtn.addEventListener('click', () => { interacting=false; guard.style.display=''; iBtn.style.display=''; eBtn.remove(); });
+      slide.appendChild(eBtn);
+    });
+    slide.appendChild(iBtn);
+    if (item.live) {
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:absolute;top:16px;left:16px;z-index:30;background:#e00;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:4px;display:flex;align-items:center;gap:5px;pointer-events:none';
+      badge.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#fff;animation:livePulse 1.2s ease infinite;display:inline-block"></span>LIVE';
+      slide.appendChild(badge);
+    }
+  } else if (item.type === 'video') {
+    const media = document.createElement('video');
     media.className = 'slide-media video';
-    media.src = item.src;
-    media.loop = true;
-    media.muted = muted;
-    media.playsInline = true;
-    media.preload = 'metadata';
+    media.src = item.src; media.loop = true; media.muted = muted;
+    media.playsInline = true; media.preload = 'metadata';
+    slide.appendChild(media);
   } else {
-    media = document.createElement('img');
+    const media = document.createElement('img');
     media.className = 'slide-media';
-    media.src = item.src;
-    media.alt = item.title;
+    media.src = item.src; media.alt = item.title;
     media.loading = index === 0 ? 'eager' : 'lazy';
+    slide.appendChild(media);
   }
 
   const overlayTop = document.createElement('div');
@@ -276,7 +371,6 @@ function buildSlide(item, index) {
     <div class="slide-subtitle">${item.subtitle}</div>
   `;
 
-  slide.appendChild(media);
   slide.appendChild(overlayTop);
   slide.appendChild(overlay);
   slide.appendChild(info);
@@ -306,6 +400,20 @@ function updateDots() {
   });
 }
 
+// ─── EMBED LAZY LOAD
+function loadEmbed(i) {
+  const s = feed.querySelector(`[data-index="${i}"]`);
+  if (!s || s.dataset.type !== "embed") return;
+  const f = s.querySelector("iframe");
+  if (f && !f.src && f.dataset.src) f.src = f.dataset.src;
+}
+function unloadEmbed(i) {
+  const s = feed.querySelector(`[data-index="${i}"]`);
+  if (!s || s.dataset.type !== "embed") return;
+  const f = s.querySelector("iframe");
+  if (f) f.src = "";
+}
+
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
 function goTo(index, instant = false) {
   if (index < 0 || index >= items.length) return;
@@ -314,9 +422,11 @@ function goTo(index, instant = false) {
   if (oldSlide) {
     const v = oldSlide.querySelector('video');
     if (v) v.pause();
+    if (oldSlide.dataset.type === 'embed') unloadEmbed(current);
   }
 
   current = index;
+  interacting = false;
   updateDots();
 
   feed.querySelectorAll('.slide').forEach(slide => {
@@ -335,11 +445,13 @@ function goTo(index, instant = false) {
   if (newSlide) {
     const v = newSlide.querySelector('video');
     if (v) { v.currentTime = 0; v.play(); }
+    if (newSlide.dataset.type === 'embed') loadEmbed(current);
   }
 }
 
 // ─── TOUCH / MOUSE DRAG ───────────────────────────────────────────────────────
 function onDragStart(y) {
+  if (interacting) return;
   dragging = true;
   startY = y;
   dragDelta = 0;
@@ -381,13 +493,14 @@ window.addEventListener('mousemove', e => { if (dragging) onDragMove(e.clientY);
 window.addEventListener('mouseup', onDragEnd);
 
 window.addEventListener('keydown', e => {
+  if (interacting) return;
   if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goTo(current + 1);
   if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') goTo(current - 1);
 });
 
 let wheelLock = false;
 window.addEventListener('wheel', e => {
-  if (wheelLock) return;
+  if (interacting || wheelLock) return;
   wheelLock = true;
   if (e.deltaY > 30) goTo(current + 1);
   else if (e.deltaY < -30) goTo(current - 1);
