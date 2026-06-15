@@ -1,580 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TikTok Style - Full Screen Media</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fone</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            background: #000;
-            overflow: hidden;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            touch-action: pan-y pinch-zoom; /* allow vertical swipe */
-        }
+  body {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
 
-        /* main full-screen container */
-        .app-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background: #000;
-        }
+  #feed {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
 
-        /* carousel wrapper (vertical feed style) */
-        .feed-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
 
-        .feed-wrapper::-webkit-scrollbar {
-            display: none;
-        }
+  .slide-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
-        /* each slide = full screen media */
-        .slide {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            scroll-snap-align: start;
-            background: #000;
-            overflow: hidden;
-        }
+  .slide-media.video {
+    background: #111;
+  }
 
-        /* media (video or image) fills the slide */
-        .media-element {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-        }
+  .slide-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+    pointer-events: none;
+  }
 
-        /* gradient overlay for better text readability */
-        .overlay-gradient {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 40%;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
-            z-index: 2;
-            pointer-events: none;
-        }
+  .slide-overlay-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
+    pointer-events: none;
+  }
 
-        /* title container (like TikTok caption) */
-        .title-container {
-            position: absolute;
-            bottom: 30px;
-            left: 20px;
-            right: 20px;
-            z-index: 3;
-            color: white;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-            pointer-events: none;
-        }
+  .slide-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 16px 48px;
+    color: #fff;
+  }
 
-        .title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            line-height: 1.3;
-        }
+  .slide-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    margin-bottom: 10px;
+  }
 
-        .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+  .slide-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  }
 
-        /* navigation buttons (minimal, like side controls) */
-        .nav-buttons {
-            position: fixed;
-            right: 12px;
-            bottom: 50%;
-            transform: translateY(50%);
-            z-index: 20;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            pointer-events: auto;
-        }
+  .slide-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-        .nav-btn {
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.8rem;
-            cursor: pointer;
-            transition: transform 0.1s ease, background 0.2s;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            touch-action: manipulation;
-        }
+  #dots {
+    position: fixed;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 100;
+  }
 
-        .nav-btn:active {
-            transform: scale(0.94);
-            background: rgba(0,0,0,0.8);
-        }
+  .dot {
+    width: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.35);
+    transition: height 0.3s, background 0.3s;
+    height: 12px;
+  }
 
-        /* small indicator for current index */
-        .index-badge {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            padding: 6px 12px;
-            border-radius: 30px;
-            color: white;
-            font-size: 0.8rem;
-            font-weight: 500;
-            z-index: 20;
-            pointer-events: none;
-            font-family: monospace;
-        }
+  .dot.active {
+    height: 22px;
+    background: #fff;
+  }
 
-        /* optional mute/unmute button for videos */
-        .sound-btn {
-            position: fixed;
-            left: 20px;
-            bottom: 100px;
-            z-index: 20;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto;
-            transition: 0.1s;
-        }
+  #swipe-hint {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    animation: fadeHint 3s ease forwards;
+    z-index: 200;
+    pointer-events: none;
+  }
 
-        .sound-btn:active {
-            transform: scale(0.95);
-        }
+  #swipe-hint svg {
+    animation: bounceUp 1s ease infinite;
+  }
 
-        @media (max-width: 600px) {
-            .title {
-                font-size: 1.2rem;
-            }
-            .nav-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 1.5rem;
-            }
-            .sound-btn {
-                width: 36px;
-                height: 36px;
-                bottom: 80px;
-            }
-        }
+  @keyframes bounceUp {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
 
-        /* hide scrollbar but keep functionality */
-        .feed-wrapper {
-            scrollbar-width: none;
-        }
-    </style>
+  @keyframes fadeHint {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  #mute-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 200;
+    background: rgba(0,0,0,0.4);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 16px;
+  }
+</style>
 </head>
 <body>
-<div class="app-container">
-    <!-- vertical scroll feed (tiktok style) -->
-    <div class="feed-wrapper" id="feedWrapper">
-        <!-- slides will be injected dynamically via JS -->
-    </div>
 
-    <!-- floating navigation buttons -->
-    <div class="nav-buttons">
-        <button class="nav-btn" id="prevBtn" aria-label="Previous">▲</button>
-        <button class="nav-btn" id="nextBtn" aria-label="Next">▼</button>
-    </div>
-    <div class="index-badge" id="indexBadge">1 / 0</div>
-    <button class="sound-btn" id="soundToggle" aria-label="Mute/Unmute">🔊</button>
+<div id="feed"></div>
+<div id="dots"></div>
+
+<div id="swipe-hint">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+  <span>Swipe up</span>
 </div>
 
+<button id="mute-btn" title="Toggle mute">🔊</button>
+
 <script>
-    // ----- MEDIA LIBRARY (images & videos with title) -----
-    // Each item: type: 'video' or 'image', url, title, optional description
-    // Using royalty-free / public domain sample media from various sources:
-    // Videos: Pexels stock (via reliable CDN) + sample videos.
-    // Images: high-res Unsplash / Picsum.
-    const mediaItems = [
-        {
-            type: 'video',
-            url: 'https://assets.mixkit.co/videos/preview/mixkit-waves-in-the-water-2593-large.mp4',
-            title: '🌊 Ocean Serenity',
-            subtitle: 'Soothing waves • Nature'
-        },
-        {
-            type: 'image',
-            url: 'https://images.pexels.com/photos/248797/pexels-photo-248797.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            title: '🏔️ Mountain Majesty',
-            subtitle: 'Alpine sunrise • Adventure'
-        },
-        {
-            type: 'video',
-            url: 'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-3293-large.mp4',
-            title: '🌸 Spring Blossoms',
-            subtitle: 'Flowers in the breeze • Calm'
-        },
-        {
-            type: 'image',
-            url: 'https://images.pexels.com/photos/1903702/pexels-photo-1903702.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            title: '🌆 City Lights',
-            subtitle: 'Urban night • Vibrant'
-        },
-        {
-            type: 'video',
-            url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-            title: '🔥 Fire & Energy',
-            subtitle: 'Dynamic motion • High energy'
-        },
-        {
-            type: 'image',
-            url: 'https://images.pexels.com/photos/1587927/pexels-photo-1587927.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            title: '🌿 Forest Path',
-            subtitle: 'Mystical woods • Relaxation'
-        }
-    ];
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+// Replace items here with your own images/videos and titles.
+// type: "image" or "video"
+const items = [
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    tag: "Nature",
+    title: "Mountain Serenity",
+    subtitle: "The peaks rise above the clouds in perfect silence.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=800&q=80",
+    tag: "Travel",
+    title: "Golden Hour",
+    subtitle: "Chasing light across the open plains at dusk.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&q=80",
+    tag: "Flowers",
+    title: "Wildflower Field",
+    subtitle: "A carpet of colour stretching to the horizon.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800&q=80",
+    tag: "Water",
+    title: "Still Lake",
+    subtitle: "Reflections so perfect you can't tell up from down.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=800&q=80",
+    tag: "Night",
+    title: "Starry Sky",
+    subtitle: "Billions of suns, and one quiet observer.",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1494500764479-0c8f2919a3d8?w=800&q=80",
+    tag: "Coast",
+    title: "Ocean Breeze",
+    subtitle: "Where the land surrenders to the sea.",
+  },
+];
 
-    let currentIndex = 0;
-    let totalSlides = mediaItems.length;
-    let videosPlaying = new Map(); // store video elements to control mute/unmute per slide
-    let globalMuted = false;      // global mute preference
-    let currentVisibleVideo = null;
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let current = 0;
+let startY = 0;
+let dragging = false;
+let dragDelta = 0;
+let muted = false;
 
-    // Get DOM elements
-    const feedWrapper = document.getElementById('feedWrapper');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const indexBadge = document.getElementById('indexBadge');
-    const soundToggle = document.getElementById('soundToggle');
+const feed = document.getElementById('feed');
+const dotsEl = document.getElementById('dots');
 
-    // Helper: create slide element
-    function createSlide(item, idx) {
-        const slideDiv = document.createElement('div');
-        slideDiv.className = 'slide';
-        slideDiv.setAttribute('data-index', idx);
-        slideDiv.setAttribute('data-type', item.type);
-        
-        if (item.type === 'video') {
-            const video = document.createElement('video');
-            video.className = 'media-element';
-            video.src = item.url;
-            video.autoplay = false;
-            video.loop = true;
-            video.playsInline = true;
-            video.muted = globalMuted;   // start with global mute state
-            video.setAttribute('playsinline', '');
-            video.setAttribute('preload', 'auto');
-            // store video reference for later control
-            slideDiv.videoElement = video;
-            slideDiv.appendChild(video);
-            
-            // load and attempt to autoplay when visible (handled by intersection observer)
-            video.load();
-        } else {
-            const img = document.createElement('img');
-            img.className = 'media-element';
-            img.src = item.url;
-            img.alt = item.title;
-            img.loading = 'eager';
-            slideDiv.appendChild(img);
-            slideDiv.videoElement = null;
-        }
-        
-        // overlay gradient + title
-        const gradient = document.createElement('div');
-        gradient.className = 'overlay-gradient';
-        const titleContainer = document.createElement('div');
-        titleContainer.className = 'title-container';
-        
-        const titleSpan = document.createElement('div');
-        titleSpan.className = 'title';
-        titleSpan.innerText = item.title;
-        
-        const subtitleSpan = document.createElement('div');
-        subtitleSpan.className = 'subtitle';
-        subtitleSpan.innerHTML = `🎵 ${item.subtitle || (item.type === 'video' ? '✨ Video' : '📸 Photo')}`;
-        
-        titleContainer.appendChild(titleSpan);
-        titleContainer.appendChild(subtitleSpan);
-        
-        slideDiv.appendChild(gradient);
-        slideDiv.appendChild(titleContainer);
-        
-        return slideDiv;
+// ─── BUILD SLIDES ─────────────────────────────────────────────────────────────
+function buildSlide(item, index) {
+  const slide = document.createElement('div');
+  slide.className = 'slide';
+  slide.dataset.index = index;
+
+  let media;
+  if (item.type === 'video') {
+    media = document.createElement('video');
+    media.className = 'slide-media video';
+    media.src = item.src;
+    media.loop = true;
+    media.muted = muted;
+    media.playsInline = true;
+    media.preload = 'metadata';
+  } else {
+    media = document.createElement('img');
+    media.className = 'slide-media';
+    media.src = item.src;
+    media.alt = item.title;
+    media.loading = index === 0 ? 'eager' : 'lazy';
+  }
+
+  const overlayTop = document.createElement('div');
+  overlayTop.className = 'slide-overlay-top';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'slide-overlay';
+
+  const info = document.createElement('div');
+  info.className = 'slide-info';
+  info.innerHTML = `
+    <div class="slide-tag">${item.tag}</div>
+    <div class="slide-title">${item.title}</div>
+    <div class="slide-subtitle">${item.subtitle}</div>
+  `;
+
+  slide.appendChild(media);
+  slide.appendChild(overlayTop);
+  slide.appendChild(overlay);
+  slide.appendChild(info);
+
+  positionSlide(slide, index);
+  return slide;
+}
+
+function positionSlide(slide, index) {
+  const offset = (index - current) * 100;
+  slide.style.transform = `translateY(${offset}%)`;
+}
+
+// ─── DOTS ─────────────────────────────────────────────────────────────────────
+function buildDots() {
+  dotsEl.innerHTML = '';
+  items.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === current ? ' active' : '');
+    dotsEl.appendChild(d);
+  });
+}
+
+function updateDots() {
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot' + (i === current ? ' active' : '');
+  });
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function goTo(index, instant = false) {
+  if (index < 0 || index >= items.length) return;
+
+  const oldSlide = feed.querySelector(`[data-index="${current}"]`);
+  if (oldSlide) {
+    const v = oldSlide.querySelector('video');
+    if (v) v.pause();
+  }
+
+  current = index;
+  updateDots();
+
+  feed.querySelectorAll('.slide').forEach(slide => {
+    const i = parseInt(slide.dataset.index);
+    const offset = (i - current) * 100;
+    if (instant) {
+      slide.style.transition = 'none';
+      slide.style.transform = `translateY(${offset}%)`;
+      requestAnimationFrame(() => slide.style.transition = '');
+    } else {
+      slide.style.transform = `translateY(${offset}%)`;
     }
+  });
 
-    // Build all slides and append to feed
-    function buildFeed() {
-        feedWrapper.innerHTML = '';
-        mediaItems.forEach((item, idx) => {
-            const slide = createSlide(item, idx);
-            feedWrapper.appendChild(slide);
-        });
-        updateBadge();
-        // after building, we can set up intersection observer to handle video play/pause
-        setupIntersectionObserver();
-        // also ensure first video plays if visible
-        setTimeout(() => {
-            const firstSlide = feedWrapper.children[0];
-            if (firstSlide && firstSlide.videoElement) {
-                attemptPlayVideo(firstSlide.videoElement);
-                currentVisibleVideo = firstSlide.videoElement;
-            }
-        }, 100);
-    }
+  const newSlide = feed.querySelector(`[data-index="${current}"]`);
+  if (newSlide) {
+    const v = newSlide.querySelector('video');
+    if (v) { v.currentTime = 0; v.play(); }
+  }
+}
 
-    // Attempt to play video with error handling
-    function attemptPlayVideo(videoElem) {
-        if (!videoElem) return;
-        const playPromise = videoElem.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.log("Autoplay prevented:", error);
-                // if autoplay fails, we can try user interaction later but fine.
-                // We'll keep muted state (already muted)
-            });
-        }
-    }
+// ─── TOUCH / MOUSE DRAG ───────────────────────────────────────────────────────
+function onDragStart(y) {
+  dragging = true;
+  startY = y;
+  dragDelta = 0;
+  feed.querySelectorAll('.slide').forEach(s => s.style.transition = 'none');
+}
 
-    // Pause all videos in slides except the one we want (optional)
-    function pauseAllVideosExcept(currentSlide) {
-        const slides = document.querySelectorAll('.slide');
-        slides.forEach(slide => {
-            const vid = slide.videoElement;
-            if (vid && slide !== currentSlide) {
-                vid.pause();
-            }
-        });
-    }
+function onDragMove(y) {
+  if (!dragging) return;
+  dragDelta = y - startY;
+  const pct = (dragDelta / window.innerHeight) * 100;
+  feed.querySelectorAll('.slide').forEach(slide => {
+    const i = parseInt(slide.dataset.index);
+    const base = (i - current) * 100;
+    slide.style.transform = `translateY(${base + pct}%)`;
+  });
+}
 
-    // Play video of the slide that is currently active (based on viewport)
-    function handleActiveSlide() {
-        const slides = document.querySelectorAll('.slide');
-        const viewportHeight = window.innerHeight;
-        let activeIndex = -1;
-        let activeSlide = null;
-        
-        // find which slide is most visible in viewport (center based)
-        for (let i = 0; i < slides.length; i++) {
-            const rect = slides[i].getBoundingClientRect();
-            const slideCenter = rect.top + rect.height / 2;
-            if (slideCenter >= 0 && slideCenter <= viewportHeight) {
-                activeIndex = i;
-                activeSlide = slides[i];
-                break;
-            }
-        }
-        
-        if (activeIndex !== -1) {
-            currentIndex = activeIndex;
-            updateBadge();
-            
-            // handle video playback
-            if (activeSlide && activeSlide.videoElement) {
-                const video = activeSlide.videoElement;
-                if (video.paused) {
-                    attemptPlayVideo(video);
-                }
-                currentVisibleVideo = video;
-                // apply global mute state
-                video.muted = globalMuted;
-                pauseAllVideosExcept(activeSlide);
-            } else {
-                // if active slide is image, pause any other video
-                if (currentVisibleVideo && currentVisibleVideo.pause) {
-                    currentVisibleVideo.pause();
-                }
-                currentVisibleVideo = null;
-            }
-        }
-    }
+function onDragEnd() {
+  if (!dragging) return;
+  dragging = false;
+  feed.querySelectorAll('.slide').forEach(s => s.style.transition = '');
 
-    // Intersection Observer to detect when a slide becomes fully visible (better performance)
-    function setupIntersectionObserver() {
-        const options = {
-            threshold: 0.6  // when 60% visible treat as active
-        };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const slide = entry.target;
-                    const idx = parseInt(slide.getAttribute('data-index'));
-                    if (!isNaN(idx) && idx === currentIndex) return; // already active
-                    // trigger active slide change
-                    handleActiveSlide();
-                }
-            });
-        }, options);
-        
-        const slides = document.querySelectorAll('.slide');
-        slides.forEach(slide => observer.observe(slide));
-        
-        // also listen to scroll end to fine tune
-        let scrollTimeout;
-        feedWrapper.addEventListener('scroll', () => {
-            if (scrollTimeout) clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                handleActiveSlide();
-            }, 100);
-        });
-        // initial call
-        setTimeout(handleActiveSlide, 200);
-    }
+  const threshold = window.innerHeight * 0.2;
+  if (dragDelta < -threshold && current < items.length - 1) {
+    goTo(current + 1);
+  } else if (dragDelta > threshold && current > 0) {
+    goTo(current - 1);
+  } else {
+    goTo(current);
+  }
+}
 
-    // Update badge text
-    function updateBadge() {
-        indexBadge.innerText = `${currentIndex + 1} / ${totalSlides}`;
-    }
+feed.addEventListener('touchstart', e => onDragStart(e.touches[0].clientY), { passive: true });
+feed.addEventListener('touchmove', e => onDragMove(e.touches[0].clientY), { passive: true });
+feed.addEventListener('touchend', onDragEnd);
 
-    // programmatically scroll to a specific slide
-    function scrollToSlide(index) {
-        if (index < 0) index = 0;
-        if (index >= totalSlides) index = totalSlides - 1;
-        if (index === currentIndex) return;
-        const slides = document.querySelectorAll('.slide');
-        if (slides[index]) {
-            slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
-            // IntersectionObserver will handle active state after scroll, but we update manually for immediate badge
-            currentIndex = index;
-            updateBadge();
-            // also try to play video of new slide if it's video
-            setTimeout(() => {
-                const newSlide = slides[currentIndex];
-                if (newSlide && newSlide.videoElement) {
-                    const vid = newSlide.videoElement;
-                    if (vid.paused) attemptPlayVideo(vid);
-                    vid.muted = globalMuted;
-                    if (currentVisibleVideo && currentVisibleVideo !== vid) {
-                        currentVisibleVideo.pause();
-                    }
-                    currentVisibleVideo = vid;
-                } else if (currentVisibleVideo) {
-                    currentVisibleVideo.pause();
-                    currentVisibleVideo = null;
-                }
-            }, 50);
-        }
-    }
+feed.addEventListener('mousedown', e => onDragStart(e.clientY));
+window.addEventListener('mousemove', e => { if (dragging) onDragMove(e.clientY); });
+window.addEventListener('mouseup', onDragEnd);
 
-    // Next slide
-    function nextSlide() {
-        if (currentIndex + 1 < totalSlides) {
-            scrollToSlide(currentIndex + 1);
-        } else {
-            // optional: loop to first? but for better UX, just vibrate or stay
-            // give small haptic effect if needed
-        }
-    }
-    
-    function prevSlide() {
-        if (currentIndex - 1 >= 0) {
-            scrollToSlide(currentIndex - 1);
-        }
-    }
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goTo(current + 1);
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') goTo(current - 1);
+});
 
-    // Toggle mute/unmute for all videos (global)
-    function toggleMute() {
-        globalMuted = !globalMuted;
-        const allVideos = document.querySelectorAll('.slide video');
-        allVideos.forEach(video => {
-            video.muted = globalMuted;
-        });
-        // update button icon
-        soundToggle.innerHTML = globalMuted ? '🔇' : '🔊';
-        // optional: if unmuted and current video is playing, ensure it stays playing
-        if (!globalMuted && currentVisibleVideo && currentVisibleVideo.paused) {
-            attemptPlayVideo(currentVisibleVideo);
-        }
-    }
+let wheelLock = false;
+window.addEventListener('wheel', e => {
+  if (wheelLock) return;
+  wheelLock = true;
+  if (e.deltaY > 30) goTo(current + 1);
+  else if (e.deltaY < -30) goTo(current - 1);
+  setTimeout(() => wheelLock = false, 600);
+}, { passive: true });
 
-    // Keyboard support
-    function handleKeyDown(e) {
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            nextSlide();
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            prevSlide();
-        }
-    }
+// ─── MUTE ─────────────────────────────────────────────────────────────────────
+document.getElementById('mute-btn').addEventListener('click', () => {
+  muted = !muted;
+  document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+  feed.querySelectorAll('video').forEach(v => v.muted = muted);
+});
 
-    // Touch swipe detection (simple vertical swipe)
-    let touchStartY = 0;
-    function handleTouchStart(e) {
-        touchStartY = e.touches[0].clientY;
-    }
-    function handleTouchEnd(e) {
-        if (!touchStartY) return;
-        const diff = e.changedTouches[0].clientY - touchStartY;
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) {
-                prevSlide();   // swipe down -> previous
-            } else {
-                nextSlide();   // swipe up -> next
-            }
-        }
-        touchStartY = 0;
-    }
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+items.forEach((item, i) => {
+  const slide = buildSlide(item, i);
+  feed.appendChild(slide);
+});
 
-    // Event listeners
-    prevBtn.addEventListener('click', prevSlide);
-    nextBtn.addEventListener('click', nextSlide);
-    soundToggle.addEventListener('click', toggleMute);
-    window.addEventListener('keydown', handleKeyDown);
-    feedWrapper.addEventListener('touchstart', handleTouchStart);
-    feedWrapper.addEventListener('touchend', handleTouchEnd);
-    
-    // also adjust for orientation change and resize to keep active slide
-    window.addEventListener('resize', () => {
-        setTimeout(handleActiveSlide, 100);
-    });
-    
-    // Build interface
-    buildFeed();
-    
-    // Additionally, handle video metadata load to ensure autoplay retry
-    document.body.addEventListener('click', function globalAutoplayHandler() {
-        // User taps anywhere — try to play current video if not playing (helps with autoplay policies)
-        const activeSlide = document.querySelector('.slide');
-        if (activeSlide && activeSlide.videoElement && activeSlide.videoElement.paused) {
-            attemptPlayVideo(activeSlide.videoElement);
-        }
-    }, { once: true }); // only once to avoid aggressive
-    
-    // Also if any video fails to autoplay due to policy, we add a small hint.
-    console.log("Ready — TikTok style fullscreen media with swipe & titles");
+buildDots();
+goTo(0, true);
+
+const firstVideo = feed.querySelector('video');
+if (firstVideo) firstVideo.play().catch(() => {});
 </script>
 </body>
 </html>
