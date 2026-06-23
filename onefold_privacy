@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy - OneFold App</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+    line-height: 1.7;
+    color: #333;
+}
+h1,h2{
+    color: #4B0082;
+}
+</style>
+</head>
+<body>
+
+<h1>Privacy Policy</h1>
+
+<p>Effective Date: June 23, 2026</p>
+
+<p>
+OneFold App ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how our application handles information when you use OneFold App.
+</p>
+
+<h2>Information We Collect</h2>
+
+<p>
+OneFold App does not collect, store, or share personally identifiable information such as your name, email address, phone number, or location.
+</p>
+
+<h2>Device Information</h2>
+
+<p>
+The app may access basic device information required for proper functionality. Such information is handled by the Android operating system and is not collected or stored by us.
+</p>
+
+<h2>Internet Connection</h2>
+
+<p>
+Certain features within OneFold App may require an internet connection to load content or access external resources. We do not collect browsing activity or personal data from these interactions.
+</p>
+
+<h2>Third-Party Services</h2>
+
+<p>
+OneFold App may use third-party services provided by Google Play and other platform providers. These services may collect information in accordance with their own privacy policies.
+</p>
+
+<h2>Children's Privacy</h2>
+
+<p>
+OneFold App is suitable for users of all ages. We do not knowingly collect personal information from children.
+</p>
+
+<h2>Data Security</h2>
+
+<p>
+We do not store personal information on our servers. However, we strive to ensure that the application is developed and maintained using industry best practices.
+</p>
+
+<h2>Changes to This Privacy Policy</h2>
+
+<p>
+We may update this Privacy Policy from time to time. Any changes will be reflected on this page with an updated effective date.
+</p>
+
+<h2>Contact Us</h2>
+
+<p>
+If you have any questions or concerns regarding this Privacy Policy, please contact us at:
+</p>
+
+<p>
+Email: reachtechnologyllc@gmail.com
+</p>
+
+<hr>
+
+<p>
+© 2026 OneFold App. All rights reserved.
+</p>
+
+</body>
+</html>
+</html>
