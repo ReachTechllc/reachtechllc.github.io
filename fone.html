@@ -384,8 +384,23 @@ function buildSlide(item, index) {
     const media = document.createElement('video');
     media.className = 'slide-media video';
     media.src = item.src; media.loop = true; media.muted = muted;
-    media.playsInline = true; media.preload = 'metadata';
+    media.playsInline = true; media.preload = 'auto';
+    media.crossOrigin = 'anonymous';
+    media.addEventListener('error', () => { media.style.opacity = '0.5'; });
     slide.appendChild(media);
+    
+    const playBtn = document.createElement('button');
+    playBtn.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,0.4);color:#fff;width:60px;height:60px;border-radius:50%;cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;transition:all 0.3s;padding:0;font-family:inherit';
+    playBtn.innerHTML = '▶';
+    playBtn.addEventListener('mouseenter', () => { playBtn.style.background = 'rgba(255,255,255,0.3)'; playBtn.style.borderColor = 'rgba(255,255,255,0.6)'; });
+    playBtn.addEventListener('mouseleave', () => { playBtn.style.background = 'rgba(255,255,255,0.2)'; playBtn.style.borderColor = 'rgba(255,255,255,0.4)'; });
+    playBtn.addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      media.play().then(() => { playBtn.style.display = 'none'; }).catch(() => { alert('Video failed to load. Please try again.'); }); 
+    });
+    media.addEventListener('play', () => { playBtn.style.display = 'none'; });
+    media.addEventListener('pause', () => { playBtn.style.display = 'flex'; });
+    slide.appendChild(playBtn);
   } else {
     const media = document.createElement('img');
     media.className = 'slide-media';
