@@ -183,6 +183,76 @@
     color: #fff;
     font-size: 16px;
   }
+
+  /* ─── LIVE CHAT (cbox) ─── */
+  #chat-btn {
+    position: fixed;
+    right: 16px;
+    bottom: 24px;
+    z-index: 250;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 20px;
+  }
+
+  #chat-btn.show { display: flex; }
+
+  #chat-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  #chat-panel.open { display: flex; }
+
+  #chat-panel-inner {
+    width: 100%;
+    max-width: 480px;
+    height: 72%;
+    background: #111;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  #chat-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  #chat-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #fff;
+  }
 </style>
 </head>
 <body>
@@ -199,6 +269,14 @@
 
 <button id="mute-btn" title="Toggle mute">🔊</button>
 
+<button id="chat-btn" title="Live chat">💬</button>
+<div id="chat-panel">
+  <div id="chat-panel-inner">
+    <button id="chat-close" title="Close chat">✕</button>
+    <iframe id="chat-iframe" src=""></iframe>
+  </div>
+</div>
+
 <script>
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 // Replace items here with your own images/videos and titles.
@@ -213,6 +291,13 @@
 //
 //   live: true  -> shows red LIVE badge
 //   live: false -> no badge
+//
+//   chat: "https://cbox.ws/box/?boxid=XXXXXX&boxtag=XXXXXX"
+//     -> ONLY set this on your live video item.
+//     -> Shows a message button at the bottom-right corner.
+//     -> Tapping it opens an iframe loading this cbox.ws link (your chat box),
+//        with a close button to dismiss it. The cbox itself handles messaging;
+//        nothing here implements chat logic.
 	
 const items = [
 	
@@ -343,6 +428,10 @@ let interacting = false;
 
 const feed = document.getElementById('feed');
 const dotsEl = document.getElementById('dots');
+const chatBtn = document.getElementById('chat-btn');
+const chatPanel = document.getElementById('chat-panel');
+const chatClose = document.getElementById('chat-close');
+const chatIframe = document.getElementById('chat-iframe');
 
 // ─── BUILD SLIDES ─────────────────────────────────────────────────────────────
 function buildSlide(item, index) {
@@ -481,6 +570,8 @@ function goTo(index, instant = false) {
   current = index;
   interacting = false;
   updateDots();
+  closeChat();
+  chatBtn.classList.toggle('show', !!items[current].chat);
 
   feed.querySelectorAll('.slide').forEach(slide => {
     const i = parseInt(slide.dataset.index);
@@ -559,6 +650,23 @@ window.addEventListener('wheel', e => {
   else if (e.deltaY < -30) goTo(current - 1);
   setTimeout(() => wheelLock = false, 600);
 }, { passive: true });
+
+// ─── LIVE CHAT (cbox) ─────────────────────────────────────────────────────────
+function openChat() {
+  const url = items[current] && items[current].chat;
+  if (!url) return;
+  chatIframe.src = url;
+  chatPanel.classList.add('open');
+}
+
+function closeChat() {
+  chatPanel.classList.remove('open');
+  chatIframe.src = '';
+}
+
+chatBtn.addEventListener('click', openChat);
+chatClose.addEventListener('click', closeChat);
+chatPanel.addEventListener('click', (e) => { if (e.target === chatPanel) closeChat(); });
 
 // ─── MUTE ─────────────────────────────────────────────────────────────────────
 document.getElementById('mute-btn').addEventListener('click', () => {
