@@ -253,6 +253,62 @@
     display: block;
     background: #fff;
   }
+
+  /* ─── VIDEO PROGRESS BAR ─── */
+  .video-progress-wrap {
+    position: absolute;
+    bottom: 6px;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    padding: 0 14px;
+  }
+
+  .video-progress {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.3);
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+    display: block;
+  }
+
+  .video-progress::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: transparent;
+  }
+
+  .video-progress::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    margin-top: -4px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+
+  .video-progress::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: transparent;
+  }
+
+  .video-progress::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
 </style>
 </head>
 <body>
@@ -491,6 +547,37 @@ function buildSlide(item, index) {
     media.addEventListener('play', () => { playBtn.style.display = 'none'; });
     media.addEventListener('pause', () => { playBtn.style.display = 'flex'; });
     slide.appendChild(playBtn);
+
+    const progressWrap = document.createElement('div');
+    progressWrap.className = 'video-progress-wrap';
+    const progress = document.createElement('input');
+    progress.type = 'range';
+    progress.className = 'video-progress';
+    progress.min = 0; progress.max = 100; progress.value = 0; progress.step = 0.1;
+    progressWrap.appendChild(progress);
+    slide.appendChild(progressWrap);
+
+    // stop the swipe/drag handlers on #feed from hijacking the scrub gesture
+    ['touchstart', 'touchmove', 'mousedown'].forEach(evt => {
+      progress.addEventListener(evt, e => e.stopPropagation());
+    });
+
+    const fillProgress = (pct) => {
+      progress.value = pct;
+      progress.style.background = `linear-gradient(to right, #fff ${pct}%, rgba(255,255,255,0.3) ${pct}%)`;
+    };
+
+    let seeking = false;
+    media.addEventListener('timeupdate', () => {
+      if (seeking || !media.duration) return;
+      fillProgress((media.currentTime / media.duration) * 100);
+    });
+    progress.addEventListener('input', () => {
+      seeking = true;
+      fillProgress(progress.value);
+      if (media.duration) media.currentTime = (progress.value / 100) * media.duration;
+    });
+    progress.addEventListener('change', () => { seeking = false; });
   } else {
     const media = document.createElement('img');
     media.className = 'slide-media';
