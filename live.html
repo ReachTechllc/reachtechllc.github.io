@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reels</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  #feed {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .slide-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+	object-position: center;
+    display: block;
+  }
+
+  .slide-media.video {
+    background: #111;
+  }
+
+  .slide.is-embed .slide-overlay,
+  .slide.is-embed .slide-overlay-top { display: none; }
+  .slide.is-embed .slide-info { background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%); }
+  .slide-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .slide-overlay-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .slide-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 16px 48px;
+    color: #fff;
+  }
+
+  .slide-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    margin-bottom: 10px;
+  }
+
+  .slide-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  }
+
+  .slide-subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #dots {
+    position: fixed;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 100;
+  }
+
+  .dot {
+    width: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.35);
+    transition: height 0.3s, background 0.3s;
+    height: 12px;
+  }
+
+  .dot.active {
+    height: 22px;
+    background: #fff;
+  }
+
+  #swipe-hint {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    animation: fadeHint 3s ease forwards;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  #swipe-hint svg {
+    animation: bounceUp 1s ease infinite;
+  }
+
+  @keyframes bounceUp {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes fadeHint {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  #mute-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 200;
+    background: rgba(0,0,0,0.4);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  /* ─── LIVE CHAT (cbox) ─── */
+  #chat-btn {
+    position: fixed;
+    right: 16px;
+    bottom: 24px;
+    z-index: 250;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 20px;
+  }
+
+  #chat-btn.show { display: flex; }
+
+  #chat-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  #chat-panel.open { display: flex; }
+
+  #chat-panel-inner {
+    width: 100%;
+    max-width: 480px;
+    height: 72%;
+    background: #111;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  #chat-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  #chat-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: #fff;
+  }
+
+  /* ─── VIDEO PROGRESS BAR ─── */
+  .video-progress-wrap {
+    position: absolute;
+    bottom: 6px;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    padding: 0 14px;
+  }
+
+  .video-progress {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.3);
+    outline: none;
+    cursor: pointer;
+    margin: 0;
+    display: block;
+  }
+
+  .video-progress::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: transparent;
+  }
+
+  .video-progress::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    margin-top: -4px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+
+  .video-progress::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: transparent;
+  }
+
+  .video-progress::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div id="feed"></div>
+<div id="dots"></div>
+
+<div id="swipe-hint">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="18 15 12 9 6 15"/>
+  </svg>
+  <span>Swipe up</span>
+</div>
+
+<button id="mute-btn" title="Toggle mute">🔊</button>
+
+<button id="chat-btn" title="Live chat">💬</button>
+<div id="chat-panel">
+  <div id="chat-panel-inner">
+    <button id="chat-close" title="Close chat">✕</button>
+    <iframe id="chat-iframe" src=""></iframe>
+  </div>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+// Replace items here with your own images/videos and titles.
+// type: "image" or "video"
+// type: "image" | "video" | "embed"
+//
+// Embed URL formats:
+//   YouTube:  https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1
+//   Facebook: https://www.facebook.com/plugins/video.php?href=ENCODED_URL&autoplay=true
+//   Twitch:   https://player.twitch.tv/?channel=NAME&parent=YOUR_DOMAIN
+//   Vimeo:    https://player.vimeo.com/video/VIDEO_ID?autoplay=1
+//
+//   live: true  -> shows red LIVE badge
+//   live: false -> no badge
+//
+//   chat: "https://cbox.ws/box/?boxid=XXXXXX&boxtag=XXXXXX"
+//     -> ONLY set this on your live video item.
+//     -> Shows a message button at the bottom-right corner.
+//     -> Tapping it opens an iframe loading this cbox.ws link (your chat box),
+//        with a close button to dismiss it. The cbox itself handles messaging;
+//        nothing here implements chat logic.
+	
+const items = [
+	{
+    type: "embed",
+    src: "https://www.youtube.com/embed/live_stream?channel=UCxczjIiMoJ9aFJJXvN6LFTA",
+    tag: "LIVE",
+    title: "Live Program",
+    subtitle: "Watch us live.",
+	live: true,
+	chat: "https://my.cbox.ws/Onefold",
+	
+  },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let current = 0;
+let startY = 0;
+let dragging = false;
+let dragDelta = 0;
+let muted = false;
+let interacting = false;
+
+const feed = document.getElementById('feed');
+const dotsEl = document.getElementById('dots');
+const chatBtn = document.getElementById('chat-btn');
+const chatPanel = document.getElementById('chat-panel');
+const chatClose = document.getElementById('chat-close');
+const chatIframe = document.getElementById('chat-iframe');
+
+// ─── BUILD SLIDES ─────────────────────────────────────────────────────────────
+function buildSlide(item, index) {
+  const slide = document.createElement('div');
+  slide.className = 'slide' + (item.type === 'embed' ? ' is-embed' : '');
+  slide.dataset.index = index;
+
+  if (item.type === 'embed') {
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#000';
+    iframe.src = item.src;
+    iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
+    //iframe.allowFullscreen = true;
+    iframe.scrolling = 'no';
+    slide.appendChild(iframe);
+    const guard = document.createElement('div');
+    guard.style.cssText = 'position:absolute;inset:0;z-index:10;background:transparent';
+    slide.appendChild(guard);
+    const iBtn = document.createElement('button');
+    iBtn.style.cssText = 'position:absolute;bottom:120px;left:50%;transform:translateX(-50%);z-index:20;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:13px;font-weight:600;padding:8px 20px;border-radius:24px;cursor:pointer;white-space:nowrap';
+    iBtn.textContent = String.fromCharCode(9654) + ' Tap to interact';
+    iBtn.addEventListener('click', () => {
+      interacting = true;
+      guard.style.display = 'none';
+      iBtn.style.display = 'none';
+      const eBtn = document.createElement('button');
+      eBtn.style.cssText = 'position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:600;padding:6px 16px;border-radius:24px;cursor:pointer';
+      eBtn.textContent = 'Exit interaction';
+      eBtn.addEventListener('click', () => { interacting=false; guard.style.display=''; iBtn.style.display=''; eBtn.remove(); });
+      slide.appendChild(eBtn);
+    });
+    slide.appendChild(iBtn);
+    if (item.live) {
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:absolute;top:16px;left:16px;z-index:30;background:#e00;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:4px;display:flex;align-items:center;gap:5px;pointer-events:none';
+      badge.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#fff;animation:livePulse 1.2s ease infinite;display:inline-block"></span>LIVE';
+      slide.appendChild(badge);
+    }
+  } else if (item.type === 'video') {
+    const media = document.createElement('video');
+    media.className = 'slide-media video';
+    media.src = item.src; media.loop = true; media.muted = muted;
+    media.playsInline = true; media.preload = 'auto';
+    media.crossOrigin = 'anonymous';
+    media.addEventListener('error', () => { media.style.opacity = '0.5'; });
+    slide.appendChild(media);
+    
+    const playBtn = document.createElement('button');
+    playBtn.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,0.4);color:#fff;width:60px;height:60px;border-radius:50%;cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;transition:all 0.3s;padding:0;font-family:inherit';
+    playBtn.innerHTML = '▶';
+    playBtn.addEventListener('mouseenter', () => { playBtn.style.background = 'rgba(255,255,255,0.3)'; playBtn.style.borderColor = 'rgba(255,255,255,0.6)'; });
+    playBtn.addEventListener('mouseleave', () => { playBtn.style.background = 'rgba(255,255,255,0.2)'; playBtn.style.borderColor = 'rgba(255,255,255,0.4)'; });
+    playBtn.addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      media.play().then(() => { playBtn.style.display = 'none'; }).catch(() => { alert('Video failed to load. Please try again.'); }); 
+    });
+    media.addEventListener('play', () => { playBtn.style.display = 'none'; });
+    media.addEventListener('pause', () => { playBtn.style.display = 'flex'; });
+    slide.appendChild(playBtn);
+
+    const progressWrap = document.createElement('div');
+    progressWrap.className = 'video-progress-wrap';
+    const progress = document.createElement('input');
+    progress.type = 'range';
+    progress.className = 'video-progress';
+    progress.min = 0; progress.max = 100; progress.value = 0; progress.step = 0.1;
+    progressWrap.appendChild(progress);
+    slide.appendChild(progressWrap);
+
+    // stop the swipe/drag handlers on #feed from hijacking the scrub gesture
+    ['touchstart', 'touchmove', 'mousedown'].forEach(evt => {
+      progress.addEventListener(evt, e => e.stopPropagation());
+    });
+
+    const fillProgress = (pct) => {
+      progress.value = pct;
+      progress.style.background = `linear-gradient(to right, #fff ${pct}%, rgba(255,255,255,0.3) ${pct}%)`;
+    };
+
+    let seeking = false;
+    media.addEventListener('timeupdate', () => {
+      if (seeking || !media.duration) return;
+      fillProgress((media.currentTime / media.duration) * 100);
+    });
+    progress.addEventListener('input', () => {
+      seeking = true;
+      fillProgress(progress.value);
+      if (media.duration) media.currentTime = (progress.value / 100) * media.duration;
+    });
+    progress.addEventListener('change', () => { seeking = false; });
+  } else {
+    const media = document.createElement('img');
+    media.className = 'slide-media';
+    media.src = item.src; media.alt = item.title;
+    media.loading = index === 0 ? 'eager' : 'lazy';
+    slide.appendChild(media);
+  }
+
+  const overlayTop = document.createElement('div');
+  overlayTop.className = 'slide-overlay-top';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'slide-overlay';
+
+  const info = document.createElement('div');
+  info.className = 'slide-info';
+  info.innerHTML = `
+    <div class="slide-tag">${item.tag}</div>
+    <div class="slide-title">${item.title}</div>
+    <div class="slide-subtitle">${item.subtitle}</div>
+  `;
+
+  slide.appendChild(overlayTop);
+  slide.appendChild(overlay);
+  slide.appendChild(info);
+
+  positionSlide(slide, index);
+  return slide;
+}
+
+function positionSlide(slide, index) {
+  const offset = (index - current) * 100;
+  slide.style.transform = `translateY(${offset}%)`;
+}
+
+// ─── DOTS ─────────────────────────────────────────────────────────────────────
+function buildDots() {
+  dotsEl.innerHTML = '';
+  items.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === current ? ' active' : '');
+    dotsEl.appendChild(d);
+  });
+}
+
+function updateDots() {
+  dotsEl.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot' + (i === current ? ' active' : '');
+  });
+}
+
+// ─── EMBED LAZY LOAD
+function loadEmbed(i) {
+  const s = feed.querySelector(`[data-index="${i}"]`);
+  if (!s || s.dataset.type !== "embed") return;
+  const f = s.querySelector("iframe");
+  if (f && !f.src && f.dataset.src) f.src = f.dataset.src;
+}
+function unloadEmbed(i) {
+  const s = feed.querySelector(`[data-index="${i}"]`);
+  if (!s || s.dataset.type !== "embed") return;
+  const f = s.querySelector("iframe");
+  if (f) f.src = "";
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function goTo(index, instant = false) {
+  if (index < 0 || index >= items.length) return;
+
+  const oldSlide = feed.querySelector(`[data-index="${current}"]`);
+  if (oldSlide) {
+    const v = oldSlide.querySelector('video');
+    if (v) v.pause();
+    if (oldSlide.dataset.type === 'embed') unloadEmbed(current);
+  }
+
+  current = index;
+  interacting = false;
+  updateDots();
+  closeChat();
+  chatBtn.classList.toggle('show', !!items[current].chat);
+
+  feed.querySelectorAll('.slide').forEach(slide => {
+    const i = parseInt(slide.dataset.index);
+    const offset = (i - current) * 100;
+    if (instant) {
+      slide.style.transition = 'none';
+      slide.style.transform = `translateY(${offset}%)`;
+      requestAnimationFrame(() => slide.style.transition = '');
+    } else {
+      slide.style.transform = `translateY(${offset}%)`;
+    }
+  });
+
+  const newSlide = feed.querySelector(`[data-index="${current}"]`);
+  if (newSlide) {
+    const v = newSlide.querySelector('video');
+    if (v) { v.currentTime = 0; v.play(); }
+    if (newSlide.dataset.type === 'embed') loadEmbed(current);
+  }
+}
+
+// ─── TOUCH / MOUSE DRAG ───────────────────────────────────────────────────────
+function onDragStart(y) {
+  if (interacting) return;
+  dragging = true;
+  startY = y;
+  dragDelta = 0;
+  feed.querySelectorAll('.slide').forEach(s => s.style.transition = 'none');
+}
+
+function onDragMove(y) {
+  if (!dragging) return;
+  dragDelta = y - startY;
+  const pct = (dragDelta / window.innerHeight) * 100;
+  feed.querySelectorAll('.slide').forEach(slide => {
+    const i = parseInt(slide.dataset.index);
+    const base = (i - current) * 100;
+    slide.style.transform = `translateY(${base + pct}%)`;
+  });
+}
+
+function onDragEnd() {
+  if (!dragging) return;
+  dragging = false;
+  feed.querySelectorAll('.slide').forEach(s => s.style.transition = '');
+
+  const threshold = window.innerHeight * 0.2;
+  if (dragDelta < -threshold && current < items.length - 1) {
+    goTo(current + 1);
+  } else if (dragDelta > threshold && current > 0) {
+    goTo(current - 1);
+  } else {
+    goTo(current);
+  }
+}
+
+feed.addEventListener('touchstart', e => onDragStart(e.touches[0].clientY), { passive: true });
+feed.addEventListener('touchmove', e => onDragMove(e.touches[0].clientY), { passive: true });
+feed.addEventListener('touchend', onDragEnd);
+
+feed.addEventListener('mousedown', e => onDragStart(e.clientY));
+window.addEventListener('mousemove', e => { if (dragging) onDragMove(e.clientY); });
+window.addEventListener('mouseup', onDragEnd);
+
+window.addEventListener('keydown', e => {
+  if (interacting) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') goTo(current + 1);
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') goTo(current - 1);
+});
+
+let wheelLock = false;
+window.addEventListener('wheel', e => {
+  if (interacting || wheelLock) return;
+  wheelLock = true;
+  if (e.deltaY > 30) goTo(current + 1);
+  else if (e.deltaY < -30) goTo(current - 1);
+  setTimeout(() => wheelLock = false, 600);
+}, { passive: true });
+
+// ─── LIVE CHAT (cbox) ─────────────────────────────────────────────────────────
+function openChat() {
+  const url = items[current] && items[current].chat;
+  if (!url) return;
+  chatIframe.src = url;
+  chatPanel.classList.add('open');
+}
+
+function closeChat() {
+  chatPanel.classList.remove('open');
+  chatIframe.src = '';
+}
+
+chatBtn.addEventListener('click', openChat);
+chatClose.addEventListener('click', closeChat);
+chatPanel.addEventListener('click', (e) => { if (e.target === chatPanel) closeChat(); });
+
+// ─── MUTE ─────────────────────────────────────────────────────────────────────
+document.getElementById('mute-btn').addEventListener('click', () => {
+  muted = !muted;
+  document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+  feed.querySelectorAll('video').forEach(v => v.muted = muted);
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+items.forEach((item, i) => {
+  const slide = buildSlide(item, i);
+  feed.appendChild(slide);
+});
+
+buildDots();
+goTo(0, true);
+
+const firstVideo = feed.querySelector('video');
+if (firstVideo) firstVideo.play().catch(() => {});
+</script>
+</body>
+</html>
