@@ -1,7 +1,7 @@
 {
   "status": 0,
   "version": "1.0.0",
-  "message": "A new version is available. Please update."
+  "message": "A new version is available. Please update.",
   "live": true,
   "liveMessage": "We are LIVE now!",
   "screen": "Live"
