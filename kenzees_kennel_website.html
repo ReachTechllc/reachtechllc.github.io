@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173b32">
+  <meta name="description" content="Kenzee’s Kennel — caring dog boarding in Switz City, Indiana. A welcoming place for your dog to stay, play, and feel at home.">
+  <title>Kenzee’s Kennel | Dog Boarding in Switz City, IN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #173b32;
+      --green-2: #285747;
+      --sage: #dce9df;
+      --cream: #fbf8f0;
+      --gold: #e8b95d;
+      --ink: #202b26;
+      --muted: #68736c;
+      --white: #fff;
+      --shadow: 0 18px 50px rgba(23,59,50,.12);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--cream); font-family: "DM Sans", sans-serif; line-height: 1.65; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; width: 100%; object-fit: cover; }
+    .container { width: min(1140px, calc(100% - 44px)); margin: auto; }
+    .topbar { background: var(--green); color: #f8f6ed; font-size: .86rem; }
+    .topbar-inner { min-height: 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .topbar a { color: #fff; font-weight: 700; }
+    header { position: sticky; top: 0; z-index: 20; background: rgba(251,248,240,.94); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(23,59,50,.08); }
+    .nav { height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--green); font-weight: 800; font-size: 1.2rem; letter-spacing: -.5px; }
+    .brand-mark { width: 43px; height: 43px; display: grid; place-items: center; border-radius: 15px; background: var(--green); color: white; font-size: 1.35rem; }
+    .nav-links { display: flex; align-items: center; gap: 30px; font-size: .94rem; font-weight: 600; color: #45554c; }
+    .nav-links a:hover { color: var(--green-2); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 0; border-radius: 999px; padding: 13px 22px; background: var(--gold); color: #26342b; font-weight: 800; font-size: .94rem; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 9px 22px rgba(232,185,93,.28); }
+    .btn-dark { background: var(--green); color: white; }
+    .menu-btn { display: none; border: 0; background: transparent; color: var(--green); font-size: 1.7rem; cursor: pointer; }
+    .hero { position: relative; overflow: hidden; background: var(--green); color: white; }
+    .hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(12,39,31,.94) 0%, rgba(12,39,31,.78) 48%, rgba(12,39,31,.2) 100%), url("https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=2000&q=85") center 48%/cover; }
+    .hero-inner { position: relative; min-height: 625px; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 35px; padding-top: 65px; padding-bottom: 70px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: .76rem; font-weight: 800; }
+    .eyebrow::before { content: ""; width: 25px; height: 2px; background: currentColor; }
+    h1, h2, h3 { font-family: "Playfair Display", Georgia, serif; line-height: 1.13; }
+    h1 { margin: 18px 0; max-width: 620px; font-size: clamp(3rem, 6vw, 5.1rem); letter-spacing: -1.8px; }
+    .hero-copy { max-width: 530px; color: rgba(255,255,255,.82); font-size: 1.08rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 30px; }
+    .btn-outline { border: 1px solid rgba(255,255,255,.65); color: white; background: rgba(255,255,255,.08); }
+    .hero-note { display: flex; align-items: center; gap: 12px; margin-top: 34px; color: rgba(255,255,255,.8); font-size: .9rem; }
+    .stars { color: var(--gold); letter-spacing: 2px; font-size: 1rem; }
+    .hero-photo { align-self: end; position: relative; height: 410px; border-radius: 48% 48% 24px 24px; overflow: hidden; border: 8px solid rgba(255,255,255,.15); box-shadow: 0 25px 70px rgba(0,0,0,.25); }
+    .hero-photo img { height: 100%; }
+    .photo-tag { position: absolute; bottom: 22px; left: 22px; padding: 12px 17px; border-radius: 15px; background: var(--cream); color: var(--green); font-weight: 800; box-shadow: var(--shadow); }
+    .trust-strip { position: relative; margin-top: -1px; background: var(--sage); }
+    .trust-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; padding: 25px 0; }
+    .trust-item { display: flex; justify-content: center; align-items: center; gap: 12px; color: var(--green); font-weight: 700; text-align: center; }
+    .trust-icon { font-size: 1.5rem; }
+    section { padding: 92px 0; }
+    .section-heading { max-width: 680px; margin: 0 auto 44px; text-align: center; }
+    .section-heading .eyebrow { color: #7b8d60; }
+    h2 { margin: 12px 0 14px; color: var(--green); font-size: clamp(2.25rem, 4vw, 3.35rem); letter-spacing: -.7px; }
+    .section-heading p { color: var(--muted); margin: 0; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
+    .about-image { position: relative; min-height: 460px; }
+    .about-image img { height: 460px; border-radius: var(--radius); }
+    .image-sticker { position: absolute; right: -20px; bottom: 25px; background: var(--gold); color: var(--green); padding: 18px 21px; border-radius: 18px; font-weight: 800; box-shadow: var(--shadow); transform: rotate(3deg); }
+    .about-copy h2 { margin-top: 14px; }
+    .about-copy p { color: var(--muted); }
+    .check-list { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin: 26px 0 30px; padding: 0; list-style: none; }
+    .check-list li { color: var(--green); font-weight: 700; }
+    .check-list li::before { content: "✓"; display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 8px; border-radius: 50%; background: var(--sage); }
+    .services { background: #f0f3eb; }
+    .service-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+    .service-card { overflow: hidden; background: white; border-radius: var(--radius); box-shadow: 0 10px 35px rgba(23,59,50,.06); transition: transform .25s; }
+    .service-card:hover { transform: translateY(-6px); }
+    .service-card img { height: 220px; }
+    .service-content { padding: 25px; }
+    .service-content .number { color: #a2b39c; font-size: .8rem; font-weight: 800; letter-spacing: 2px; }
+    .service-content h3 { margin: 7px 0; color: var(--green); font-size: 1.55rem; }
+    .service-content p { margin: 0; color: var(--muted); font-size: .94rem; }
+    .care-banner { padding: 0; background: var(--green); color: white; }
+    .care-inner { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 45px; padding-top: 72px; padding-bottom: 72px; }
+    .care-inner h2 { color: white; }
+    .care-inner p { color: rgba(255,255,255,.76); }
+    .care-photo { height: 340px; overflow: hidden; border-radius: var(--radius); }
+    .care-photo img { height: 100%; }
+    .reviews { background: var(--cream); }
+    .rating-summary { display: flex; justify-content: center; align-items: center; gap: 13px; margin: -15px 0 36px; }
+    .rating-number { color: var(--green); font-size: 2.4rem; font-weight: 800; }
+    .rating-meta { color: var(--muted); font-size: .88rem; }
+    .review-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .review-card { padding: 27px; border: 1px solid #e8e8dd; border-radius: var(--radius); background: white; }
+    .review-card p { color: #59655e; font-size: .95rem; }
+    .review-card strong { color: var(--green); }
+    .review-card .stars { font-size: .9rem; }
+    .review-source { margin-top: 28px; text-align: center; color: var(--muted); font-size: .88rem; }
+    .contact { background: var(--sage); }
+    .contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 55px; align-items: start; }
+    .contact-copy h2 { margin-top: 12px; }
+    .contact-copy p { color: var(--muted); }
+    .contact-card { padding: 32px; border-radius: var(--radius); background: white; box-shadow: var(--shadow); }
+    .contact-row { display: flex; gap: 15px; padding: 17px 0; border-bottom: 1px solid #edf0e9; }
+    .contact-row:last-of-type { border-bottom: 0; }
+    .contact-icon { flex: 0 0 43px; height: 43px; display: grid; place-items: center; border-radius: 14px; background: var(--sage); font-size: 1.2rem; }
+    .contact-row small { display: block; color: var(--muted); }
+    .contact-row strong { color: var(--green); }
+    .contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+    footer { padding: 30px 0; background: #102d26; color: rgba(255,255,255,.72); font-size: .87rem; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    footer strong { color: white; }
+    .paw { color: var(--gold); }
+    @media (max-width: 850px) {
+      .nav-links { gap: 17px; }
+      .hero-inner { grid-template-columns: 1fr .75fr; min-height: 570px; }
+      .hero-photo { height: 340px; }
+      .about-grid, .care-inner { gap: 35px; }
+      .service-grid, .review-grid { grid-template-columns: repeat(2,1fr); }
+      .service-card:last-child, .review-card:last-child { grid-column: span 2; }
+    }
+    @media (max-width: 650px) {
+      .container { width: min(100% - 34px, 520px); }
+      .topbar-inner { justify-content: center; text-align: center; min-height: 36px; }
+      .topbar-inner span:first-child { display: none; }
+      .nav { height: 68px; }
+      .menu-btn { display: block; }
+      .nav-links { display: none; position: absolute; top: 68px; left: 0; right: 0; padding: 20px 25px 25px; background: var(--cream); border-bottom: 1px solid #e8e8dd; flex-direction: column; align-items: stretch; gap: 18px; }
+      .nav-links.open { display: flex; }
+      .nav-links .btn { width: 100%; }
+      .hero::before { background: linear-gradient(90deg, rgba(12,39,31,.92), rgba(12,39,31,.69)), url("https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80") center/cover; }
+      .hero-inner { display: flex; flex-direction: column; align-items: stretch; min-height: auto; padding-top: 75px; padding-bottom: 45px; }
+      h1 { font-size: clamp(2.8rem, 13vw, 4.2rem); }
+      .hero-photo { width: 82%; height: 300px; margin: 18px auto 0; align-self: center; }
+      .trust-grid { grid-template-columns: 1fr; gap: 14px; padding: 22px 0; }
+      .trust-item { justify-content: flex-start; }
+      section { padding: 68px 0; }
+      .about-grid, .care-inner, .contact-grid { grid-template-columns: 1fr; }
+      .about-image { min-height: 340px; margin-right: 12px; }
+      .about-image img { height: 340px; }
+      .image-sticker { right: -10px; }
+      .check-list { grid-template-columns: 1fr; }
+      .service-grid, .review-grid { grid-template-columns: 1fr; }
+      .service-card:last-child, .review-card:last-child { grid-column: auto; }
+      .service-card img { height: 205px; }
+      .care-inner { padding-top: 60px; padding-bottom: 60px; }
+      .care-photo { height: 260px; }
+      .contact-grid { gap: 25px; }
+      .contact-card { padding: 22px; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>🐾 A welcoming stay for your four-legged family</span>
+      <span>Call to ask about availability: <a href="tel:+18127986410">(812) 798-6410</a></span>
+    </div>
+  </div>
+
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="Kenzee’s Kennel home">
+        <span class="brand-mark">🐾</span><span>Kenzee’s Kennel</span>
+      </a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+        <a href="#about">About</a><a href="#services">Our Care</a><a href="#reviews">Reviews</a><a href="#contact">Contact</a>
+        <a class="btn" href="tel:+18127986410">Call to Inquire <span>↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home" style="padding:0">
+      <div class="container hero-inner">
+        <div>
+          <span class="eyebrow">Kenzee’s Kennel · Switz City, Indiana</span>
+          <h1>A happy stay for your best friend.</h1>
+          <p class="hero-copy">When you’re away, your dog deserves a place where they can feel comfortable, cared for, and ready for a little fun.</p>
+          <div class="hero-actions">
+            <a class="btn" href="tel:+18127986410">☎ &nbsp; Call (812) 798-6410</a>
+            <a class="btn btn-outline" href="#contact">Find Us</a>
+          </div>
+          <div class="hero-note"><span class="stars">★★★★★</span><span><strong>5.0 out of 5</strong> · 23 customer reviews</span></div>
+        </div>
+        <div class="hero-photo">
+          <img src="https://images.unsplash.com/photo-1551717743-49959800b1f6?auto=format&fit=crop&w=1000&q=85" alt="Happy dog enjoying time outdoors">
+          <div class="photo-tag">Lots of tail wags <span class="paw">♥</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust-strip">
+      <div class="container trust-grid">
+        <div class="trust-item"><span class="trust-icon">🏡</span><span>A comfortable place to stay</span></div>
+        <div class="trust-item"><span class="trust-icon">🐕</span><span>Room for play and exercise</span></div>
+        <div class="trust-item"><span class="trust-icon">💛</span><span>Personal, attentive care</span></div>
+      </div>
+    </div>
+
+    <section id="about">
+      <div class="container about-grid">
+        <div class="about-image">
+          <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1100&q=85" alt="Friendly dog looking toward the camera">
+          <div class="image-sticker">Your dog is family here 🐾</div>
+        </div>
+        <div class="about-copy">
+          <span class="eyebrow">A little about us</span>
+          <h2>Care that helps you feel good about being away.</h2>
+          <p>Leaving your dog with someone else is a big decision. At Kenzee’s Kennel, the goal is to make your pet’s stay a positive experience and give you greater peace of mind.</p>
+          <p>Customers have praised the friendly, responsive care, the clean fenced outdoor play area, and picture updates that let them see how their dogs are doing.</p>
+          <ul class="check-list">
+            <li>Dog boarding</li><li>Outdoor play area</li><li>Picture updates</li><li>Baths & nail care by request</li>
+          </ul>
+          <a class="btn btn-dark" href="tel:+18127986410">Ask About Your Dog’s Stay ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="services" id="services">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Thoughtful care</span>
+          <h2>A stay with room to be a dog.</h2>
+          <p>From a comfortable boarding stay to time outside, we want every visit to feel welcoming. Contact us to confirm services and availability.</p>
+        </div>
+        <div class="service-grid">
+          <article class="service-card">
+            <img src="https://images.unsplash.com/photo-1560743641-3914f2c45636?auto=format&fit=crop&w=900&q=85" alt="Dog relaxing comfortably">
+            <div class="service-content"><span class="number">01 / BOARDING</span><h3>A place to stay</h3><p>A caring place for your dog while you travel or take care of life’s plans. Call to discuss your dog’s needs.</p></div>
+          </article>
+          <article class="service-card">
+            <img src="https://images.unsplash.com/photo-1505628346881-b72b27e84530?auto=format&fit=crop&w=900&q=85" alt="Dogs playing together outdoors">
+            <div class="service-content"><span class="number">02 / PLAYTIME</span><h3>Time to stretch & play</h3><p>Customers mention a large, fenced outdoor area where dogs can enjoy time outside and play.</p></div>
+          </article>
+          <article class="service-card">
+            <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=900&q=85" alt="Dog receiving gentle grooming">
+            <div class="service-content"><span class="number">03 / EXTRA CARE</span><h3>Baths & nail trims</h3><p>Baths and nail care have been mentioned by customers. Ask the kennel about current options and pricing.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="care-banner">
+      <div class="container care-inner">
+        <div>
+          <span class="eyebrow">Peace of mind matters</span>
+          <h2>Little updates. A lot of reassurance.</h2>
+          <p>Customers appreciate receiving pictures of their dogs enjoying time outdoors. Ask about picture updates when arranging your pet’s stay.</p>
+          <a class="btn" href="tel:+18127986410">Let’s Talk About Your Plans ↗</a>
+        </div>
+        <div class="care-photo"><img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1100&q=85" alt="Happy dog enjoying a sunny day"></div>
+      </div>
+    </section>
+
+    <section class="reviews" id="reviews">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Kind words from customers</span>
+          <h2>Trusted by happy pet families.</h2>
+          <p>See why local dog owners recommend Kenzee’s Kennel.</p>
+        </div>
+        <div class="rating-summary"><span class="rating-number">5.0</span><div><div class="stars">★★★★★</div><div class="rating-meta">Based on 23 Google reviews</div></div></div>
+        <div class="review-grid">
+          <article class="review-card"><div class="stars">★★★★★</div><p>“A super great place to board your animals. Our dogs love going there. She sends pictures of them outside playing.”</p><strong>— David H.</strong></article>
+          <article class="review-card"><div class="stars">★★★★★</div><p>“She is personable, responsive, and good to the dogs.”</p><strong>— Megan W.</strong></article>
+          <article class="review-card"><div class="stars">★★★★★</div><p>“I had never boarded my fur babies but I felt so comfortable leaving them here.”</p><strong>— Customer review</strong></article>
+        </div>
+        <p class="review-source">Review excerpts supplied for this website concept. View the business listing for the latest reviews.</p>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="container contact-grid">
+        <div class="contact-copy">
+          <span class="eyebrow">Get in touch</span>
+          <h2>Ready to plan your dog’s stay?</h2>
+          <p>Have questions about boarding, availability, or what to bring? Give Kenzee’s Kennel a call. It’s the easiest way to discuss your dog’s needs and arrange a visit.</p>
+          <a class="btn btn-dark" href="tel:+18127986410">☎ &nbsp; (812) 798-6410</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-row"><span class="contact-icon">📍</span><div><small>Visit us</small><strong>8642 W 50 N, Switz City, IN 47465, USA</strong></div></div>
+          <div class="contact-row"><span class="contact-icon">☎</span><div><small>Call us</small><strong><a href="tel:+18127986410">+1 812-798-6410</a></strong></div></div>
+          <div class="contact-row"><span class="contact-icon">🕘</span><div><small>Hours</small><strong>Call to confirm today’s hours</strong><small>Business listing indicates opening at 9:00 AM.</small></div></div>
+          <div class="contact-row"><span class="contact-icon">f</span><div><small>Facebook</small><strong><a href="https://www.facebook.com/" target="_blank" rel="noopener">Find Kenzee’s Kennel on Facebook</a></strong><small>Confirm the official page before publishing a direct link.</small></div></div>
+          <div class="contact-actions">
+            <a class="btn btn-dark" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=8642+W+50+N%2C+Switz+City%2C+IN+47465">Get Directions ↗</a>
+            <a class="btn" href="tel:+18127986410">Call Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div><strong>Kenzee’s Kennel</strong> <span class="paw">♥</span> Caring stays for good dogs.</div>
+      <div>© <span id="year"></span> Kenzee’s Kennel · Switz City, Indiana</div>
+    </div>
+  </footer>
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const navLinks = document.getElementById('navLinks');
+    menuBtn.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(open));
+      menuBtn.textContent = open ? '×' : '☰';
+    });
+    navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+      menuBtn.textContent = '☰';
+    }));
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
